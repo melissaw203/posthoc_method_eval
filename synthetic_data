@@ -1,0 +1,344 @@
+# %%
+import numpy as np
+from scipy.stats import norm
+from scipy.stats import multivariate_normal
+
+# Function to generate informative features with varying levels of dependency
+def generate_informative_features(num_samples, correlation_matrix, num_features):
+    # Define marginal distributions (e.g., normal distributions)
+    marginal_distributions = [norm() for _ in range(num_features)]
+
+    # Transform marginals to uniform distributions
+    u = np.array([marginal.cdf(np.random.rand(num_samples)) for marginal in marginal_distributions]).T
+
+    # Apply the copula with the specified correlation matrix
+    multivariate_norm = multivariate_normal(mean=np.zeros(num_features), cov=correlation_matrix)
+    informative_features_transformed = multivariate_norm.cdf(u)
+
+    # Transform back to the original marginals
+    informative_features = [marginal.ppf(informative_features_transformed[:, i]) for i, marginal in enumerate(marginal_distributions)]
+
+    return np.array(informative_features).T  # Transpose to have features in columns
+
+# Number of samples
+num_samples = 1000
+
+# Different correlation matrices for varying levels of dependency
+correlation_matrix_low = np.array([[1.0, 0.2, 0.2], [0.2, 1.0, 0.2], [0.2, 0.2, 1.0]])
+correlation_matrix_medium = np.array([[1.0, 0.5, 0.5], [0.5, 1.0, 0.5], [0.5, 0.5, 1.0]])
+correlation_matrix_high = np.array([[1.0, 0.8, 0.8], [0.8, 1.0, 0.8], [0.8, 0.8, 1.0]])
+
+# Number of features to be generated
+num_features = 3
+
+# Generate informative features with varying levels of dependency
+informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, num_features)
+informative_features_medium = generate_informative_features(num_samples, correlation_matrix_medium, num_features)
+informative_features_high = generate_informative_features(num_samples, correlation_matrix_high, num_features)
+
+# Display the generated informative features
+print("Generated Informative Features (Low Dependency):")
+print(informative_features_low[:5])
+
+print("\nGenerated Informative Features (Medium Dependency):")
+print(informative_features_medium[:5])
+
+print("\nGenerated Informative Features (High Dependency):")
+print(informative_features_high[:5])
+
+
+# %%
+# Function to generate informative features with varying levels of dependency
+def generate_informative_features(num_samples, correlation_matrix, n):
+    print("TEST")
+    # Define marginal distributions (e.g., normal distributions)
+    marginal_distributions = [norm() for _ in range(n)]
+
+    # Transform marginals to uniform distributions
+    u = np.array([marginal.cdf(np.random.rand(num_samples)) for marginal in marginal_distributions]).T
+
+    # Apply the copula with the specified correlation matrix
+    multivariate_norm = multivariate_normal(mean=np.zeros(n), cov=correlation_matrix)
+    informative_features_transformed = multivariate_norm.cdf(u)
+
+    # print(len(informative_features_transformed))
+
+    # Transform back to the original marginals
+    informative_features = [marginal.ppf(informative_features_transformed[i]) for i, marginal in enumerate(marginal_distributions)]
+
+    # Transform back to the original marginals
+    # informative_features = [marginal.ppf(informative_features_transformed[:, i]) for i, marginal in enumerate(marginal_distributions)]
+
+    return np.array(informative_features).T  # Transpose to have features in columns
+
+# %%
+import numpy as np
+from scipy.stats import multivariate_normal
+# Function to generate informative features with varying levels of dependency
+def generate_informative_features(num_samples, correlation_matrix, n):
+    # Apply the copula with the specified correlation matrix
+    multivariate_norm = multivariate_normal(mean=np.zeros(n), cov=correlation_matrix)
+    informative_features = multivariate_norm.rvs(size=num_samples)
+
+    return informative_features
+
+# %%
+
+
+# %%
+# Number of samples
+num_samples = 1000
+
+# Different correlation matrices for varying levels of dependency
+correlation_matrix_low = np.array([[1.0, 0.2, 0.3], [0.2, 1.0, 0.4], [0.3, 0.4, 1.0]])
+
+# Generate informative features with varying levels of dependency for n=3
+informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, 3)
+
+informative_features_low
+
+# %%
+# Number of samples
+num_samples = 1000
+
+# Different correlation matrices for varying levels of dependency
+correlation_matrix_low = np.array([[1.0, 0.2, 0.3], [0.2, 1.0, 0.4], [0.3, 0.4, 1.0]])
+correlation_matrix_medium = np.array([[1.0, 0.5, 0.6], [0.5, 1.0, 0.7], [0.6, 0.7, 1.0]])
+correlation_matrix_high = np.array([[1.0, 0.8, 0.9], [0.8, 1.0, 0.9], [0.9, 0.9, 1.0]])
+
+# Generate informative features with varying levels of dependency for n=3
+informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, 3)
+informative_features_medium = generate_informative_features(num_samples, correlation_matrix_medium, 3)
+informative_features_high = generate_informative_features(num_samples, correlation_matrix_high, 3)
+
+# Display the generated informative features
+print("Generated Informative Features (Low Dependency):")
+print(informative_features_low)
+
+print("\nGenerated Informative Features (Medium Dependency):")
+print(informative_features_medium[:5])
+
+print("\nGenerated Informative Features (High Dependency):")
+print(informative_features_high[:5])
+
+# %%
+
+# Visualize the datasets
+fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+axs[0].scatter(informative_features_low[:, 0], informative_features_low[:, 1])
+axs[0].set_title('Low Dependency')
+axs[1].scatter(informative_features_medium[:, 0], informative_features_medium[:, 1])
+axs[1].set_title('Medium Dependency')
+axs[2].scatter(informative_features_high[:, 0], informative_features_high[:, 1])
+axs[2].set_title('High Dependency')
+plt.show()
+
+# %%
+plot_distr(informative_features_low)
+plot_distr(informative_features_medium)
+plot_distr(informative_features_high)
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal
+
+# Assuming informative_features_low is your dataset with 2 features
+# informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, num_features)
+
+# Scatter Plot
+fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+
+# Scatter Plot
+axs[0].scatter(informative_features_low[:, 0], informative_features_low[:, 1], alpha=0.5)
+axs[0].set_title('Joint Distribution Scatter Plot')
+axs[0].set_xlabel('Feature 1')
+axs[0].set_ylabel('Feature 2')
+
+# Scatter Plot with CDFs
+cdf_values = [multivariate_normal.cdf(point) for point in informative_features_low]
+axs[1].scatter(
+    informative_features_low[:, 0],
+    informative_features_low[:, 1],
+    alpha=0.5,
+    c=cdf_values,
+)
+axs[1].set_title('Joint Distribution CDF Scatter Plot')
+axs[1].set_xlabel('Feature 1')
+axs[1].set_ylabel('Feature 2')
+
+plt.tight_layout()
+plt.show()
+
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal
+
+# Assuming informative_features_low is your dataset with 2 features
+# informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, num_features)
+
+
+def plot_distr(dataset):
+# Scatter Plot
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+
+# Scatter Plot
+    axs[0].scatter(dataset[:, 0], dataset[:, 1], alpha=0.5)
+    axs[0].set_title('Joint Distribution Scatter Plot')
+    axs[0].set_xlabel('Feature 1')
+    axs[0].set_ylabel('Feature 2')
+
+    # Scatter Plot with CDFs
+    cdf_values = [multivariate_normal.cdf(point) for point in dataset]
+    axs[1].scatter(
+        dataset[:, 0],
+        dataset[:, 1],
+        alpha=0.5,
+        c=cdf_values,
+    )
+    axs[1].set_title('Joint Distribution CDF Scatter Plot')
+    axs[1].set_xlabel('Feature 1')
+    axs[1].set_ylabel('Feature 2')
+
+    plt.tight_layout()
+    plt.show()
+
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal
+from matplotlib.colors import Normalize
+
+def plot_joint_distribution(initial_dataset):
+    # Scatter Plot
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+
+    # Scatter Plot
+    axs[0].scatter(initial_dataset[:, 0], initial_dataset[:, 1], alpha=0.5)
+    axs[0].set_title('Joint Distribution Scatter Plot')
+    axs[0].set_xlabel('Feature 1')
+    axs[0].set_ylabel('Feature 2')
+
+    # Scatter Plot with CDFs using colormap
+    cdf_values = [multivariate_normal.cdf(point) for point in initial_dataset]
+    norm = Normalize(vmin=np.min(cdf_values), vmax=np.max(cdf_values))
+    cmap = plt.cm.get_cmap('viridis')  # You can choose another colormap
+
+    axs[1].scatter(
+        initial_dataset[:, 0],
+        initial_dataset[:, 1],
+        alpha=0.5,
+        c=cdf_values,
+        cmap=cmap,
+        norm=norm,
+    )
+    axs[1].set_title('Joint Distribution CDF Scatter Plot')
+    axs[1].set_xlabel('Feature 1')
+    axs[1].set_ylabel('Feature 2')
+
+    plt.tight_layout()
+    plt.show()
+
+# Example usage:
+# Assuming informative_features_low is your dataset with 2 features
+# informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, num_features)
+# plot_joint_distribution(informative_features_low)
+
+
+# %%
+# plots
+
+# Number of samples
+num_samples = 1000
+
+# Different correlation matrices for varying levels of dependency
+correlation_matrix_low = np.array([[1.0, 0.2], [0.2, 1.0]])
+correlation_matrix_medium = np.array([[1.0, 0.5], [0.5, 1.0]])
+correlation_matrix_high = np.array([[1.0, 0.8], [0.8, 1.0]])
+
+# Generate Datasets
+informative_features_low = generate_informative_features(num_samples, correlation_matrix_low, 2)
+informative_features_medium = generate_informative_features(num_samples, correlation_matrix_medium, 2)
+informative_features_high = generate_informative_features(num_samples, correlation_matrix_high, 2)
+
+# Plot distributions
+# initial_dataset = generate_informative_features(num_samples, correlation_matrix_low, num_features)
+plot_distr(informative_features_low)
+
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal
+from mpl_toolkits.mplot3d import Axes3D
+
+# %%
+# Visualize the datasets in 3D
+fig = plt.figure(figsize=(15, 5))
+
+ax1 = fig.add_subplot(131, projection='3d')
+ax1.scatter(informative_features_low[:, 0], informative_features_low[:, 1], informative_features_low[:, 2])
+ax1.set_title('Low Dependency')
+
+ax2 = fig.add_subplot(132, projection='3d')
+ax2.scatter(informative_features_medium[:, 0], informative_features_medium[:, 1], informative_features_medium[:, 2])
+ax2.set_title('Medium Dependency')
+
+ax3 = fig.add_subplot(133, projection='3d')
+ax3.scatter(informative_features_high[:, 0], informative_features_high[:, 1], informative_features_high[:, 2])
+ax3.set_title('High Dependency')
+
+plt.show()
+
+# %% [markdown]
+# # Successful 2 feature generation
+# 
+
+# %%
+import numpy as np
+from scipy.stats import norm
+from scipy.stats import multivariate_normal
+from scipy.stats import uniform
+
+# Function to generate informative features with varying levels of dependency
+def generate_informative_features(num_samples, correlation_matrix):
+    # Define marginal distributions (e.g., normal distributions)
+    marginal_distributions = [norm(), norm()]
+
+    # Transform marginals to uniform distributions
+    u = np.array([marginal.cdf(np.random.rand(num_samples)) for marginal in marginal_distributions]).T
+
+    # Apply the copula with the specified correlation matrix
+    multivariate_norm = multivariate_normal(mean=[0, 0], cov=correlation_matrix)
+    informative_features_transformed = multivariate_norm.cdf(u)
+
+    # Transform back to the original marginals
+    informative_features = [marginal.ppf(informative_features_transformed) for marginal in marginal_distributions]
+
+    return np.array(informative_features).T  # Transpose to have features in columns
+
+# Number of samples
+num_samples = 1000
+
+# Different correlation matrices for varying levels of dependency
+correlation_matrix_low = np.array([[1.0, 0.2], [0.2, 1.0]])
+correlation_matrix_medium = np.array([[1.0, 0.5], [0.5, 1.0]])
+correlation_matrix_high = np.array([[1.0, 0.8], [0.8, 1.0]])
+
+# Generate informative features with varying levels of dependency
+informative_features_low = generate_informative_features(num_samples, correlation_matrix_low)
+informative_features_medium = generate_informative_features(num_samples, correlation_matrix_medium)
+informative_features_high = generate_informative_features(num_samples, correlation_matrix_high)
+
+# Display the generated informative features
+print("Generated Informative Features (Low Dependency):")
+print(informative_features_low[:5])
+
+print("\nGenerated Informative Features (Medium Dependency):")
+print(informative_features_medium[:5])
+
+print("\nGenerated Informative Features (High Dependency):")
+print(informative_features_high[:5])
