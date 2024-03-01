@@ -1,0 +1,80 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal, gamma, beta, t
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# Number of samples
+n = 1000
+
+# Correlation matrix
+Rho = np.array([[1, 0.4, 0.2], [0.4, 1, -0.8], [0.2, -0.8, 1]])
+
+# Generate samples from multivariate normal distribution
+Z = multivariate_normal(mean=[0, 0, 0], cov=Rho).rvs(n)
+
+# Transform samples to uniform marginals
+U = np.clip(np.apply_along_axis(lambda x: multivariate_normal.cdf(x, mean=0, cov=1), 1, Z), 0, 1)
+
+# Transform uniform marginals to desired marginals
+X = np.column_stack([gamma.ppf(U[:, 0], a=2, scale=1),
+                     beta.ppf(U[:, 1], a=2, b=2),
+                     t.ppf(U[:, 2], df=5)])
+
+# Plot the trivariate distribution
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(X[:, 0], X[:, 1], X[:, 2], marker='.')
+ax.set_xlabel('U1')
+ax.set_ylabel('U2')
+ax.set_zlabel('U3')
+ax.grid(True)
+ax.view_init(elev=0, azim=15)
+plt.show()
+
+  import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal, gamma, beta, t
+
+
+# Final version to simulate 3 features
+def simulate_higher_order_copula(correlation_matrix, marginals, n=1000, seed=None):
+    # Set random seed for reproducibility
+    np.random.seed(seed)
+
+    # Generate samples from multivariate normal distribution
+    Z = multivariate_normal(mean=np.zeros(len(correlation_matrix)), cov=correlation_matrix).rvs(n)
+
+    # Transform samples to uniform marginals
+    U = np.clip(np.apply_along_axis(lambda x: multivariate_normal.cdf(x, mean=0, cov=1), 1, Z), 0, 1)
+
+    # Transform uniform marginals to desired marginals
+    X = np.column_stack([marginals[i].ppf(U[:, i]) for i in range(len(marginals))])
+
+    return X
+
+# Visualize
+def plot_higher_order_copula(X):
+    # Plot the trivariate distribution
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2], marker='.')
+    ax.set_xlabel('U1')
+    ax.set_ylabel('U2')
+    ax.set_zlabel('U3')
+    ax.grid(True)
+    ax.view_init(azim=15)
+    plt.show()
+
+# Example usage:
+# Set correlation matrix and desired marginals
+Rho = np.array([[1, 0.4, 0.2], [0.4, 1, -0.8], [0.2, -0.8, 1]])
+marginals = [gamma(a=2, scale=1), beta(a=2, b=2), t(df=5)]
+
+# Uncomment the next two lines if you want reproducibility
+# seed = 42
+# X = simulate_higher_order_copula(correlation_matrix=Rho, marginals=marginals, n=1000, seed=seed)
+X = simulate_higher_order_copula(correlation_matrix=Rho, marginals=marginals, n=1000)
+plot_higher_order_copula(X)
+
