@@ -1,0 +1,56 @@
+# Results dictionary to store all data
+m = 5
+n = 100
+d_max = 5
+index = 0
+experiments = 20
+
+degrees = np.arange(1, d_max+2, 1)
+
+for _ in range(experiments):
+  df = generate_baseData(n, m)
+  coefficients = np.random.rand(m)
+
+  for degree in degrees:
+    y = nonlinear_target(df, degree, coefficients)
+
+    # Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=0.2, random_state=42)
+
+    # Train white-box models
+    models = {
+        'Linear Regression': LinearRegression(),
+        'Decision Tree': DecisionTreeRegressor(),
+        'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42)
+    }
+
+    for model_name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+
+        # Compute feature contributions
+        ground_truth_contributions = np.array(coefficients)  # Replace with your ground truth feature contributions
+        learned_model_contributions = compute_feature_contributions(model, X_test)
+        # print('learned model = ', learned_model_contributions)
+        shap_values = calculate_shap_values(model, X_test).mean(axis=0)
+        # print('shap values = ', shap_values)
+
+        if learned_model_contributions is not None:
+            # Normalize feature contributions to unit vectors
+            ground_truth_contributions_normalized = np.abs(ground_truth_contributions) # / np.linalg.norm(ground_truth_contributions)
+            learned_model_contributions_normalized = np.abs(learned_model_contributions) # / np.linalg.norm(learned_model_contributions)
+            shap_values_normalized = np.abs(shap_values) # / np.linalg.norm(shap_values)
+
+            # Calculate cosine similarity
+            similarity_synthetic_model = calculate_cosine_similarity(ground_truth_contributions_normalized, learned_model_contributions_normalized)
+            similarity_model_shap = calculate_cosine_similarity(learned_model_contributions_normalized, shap_values_normalized)
+            similarity_synthetic_shap = calculate_cosine_similarity(ground_truth_contributions_normalized, shap_values_normalized)
+
+            # Store results
+            results['Max Degree'].append(degree)
+            results['Experiment'].append(_+1)
+            results['Model'].append(model_name)
+            results['Cosine Similarity (Synthetic vs. Model)'].append(similarity_synthetic_model)
+            results['Cosine Similarity (Model vs. SHAP)'].append(similarity_model_shap)
+            results['Cosine Similarity (Synthetic vs. SHAP)'].append(similarity_synthetic_shap)
