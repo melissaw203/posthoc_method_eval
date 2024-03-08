@@ -6,8 +6,16 @@ import pandas as pd
 def generate_dataset():
     pass
 
+# Sidebar
+st.sidebar.title("Pages")  # You can add a title to the sidebar like this
+
+# Section header in the sidebar
+st.sidebar.header('Select your experiment')
+st.sidebar.header('Select your machine learning model')
+st.sidebar.header('Select your post-hoc feature attribution method')
+
 # Title
-st.title("Build your dataset")
+st.title("Generate your dataset")
 
 
 # Tabs for dataset topics
