@@ -1,14 +1,6 @@
 
 import streamlit as st
 import pandas as pd
-df = pd.DataFrame({
-  'first column': [1, 2, 3, 4],
-  'second column': [10, 20, 30, 40]
-})
-
-st.write(df)
-
-import streamlit as st
 
 # Placeholder functions
 def generate_dataset():
@@ -52,6 +44,26 @@ with tab1:
         generate_dataset()
 
 # Repeat similar structures for the other tabs...
+
+df = pd.DataFrame({
+  '$X_1$': [1, 2, 3, 4],
+  '$X_2$': [10, 20, 30, 40]
+})
+
+st.write(df)
+
+pip install matplotlib
+import matplotlib.pyplot as plt
+# Plotting
+fig, ax = plt.subplots()
+ax.plot(df['$X_1$'], df['$X_2$'], marker='o')
+ax.set_title("Sample Data Plot")
+ax.set_xlabel("$X_1$")
+ax.set_ylabel("$X_2$")
+
+# Display the plot
+st.pyplot(fig)
+
 
 # Using different functions for different dataset types might be required, 
 # but for now, we're using the same placeholder for simplicity.
