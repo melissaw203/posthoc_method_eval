@@ -33,7 +33,7 @@ with tab1:
     with col1:
         title_slider = st.slider("Feature Correlation", min_value=0.0, max_value=1.0, value=0.9, step=0.05)
     with col2:
-        year_slider = st.slider("Data Sparsity", min_value=0.0, max_value=100, value=50, step=10)
+        year_slider = st.slider("Data Sparsity", min_value=0, max_value=100, value=50, step=10)
     with col3:
         pg_rating_slider = st.slider("Feature Noise", min_value=0.0, max_value=1.0, value=0.5, step=0.01)
     
