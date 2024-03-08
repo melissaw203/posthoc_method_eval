@@ -52,7 +52,6 @@ df = pd.DataFrame({
 
 st.write(df)
 
-pip install matplotlib
 import matplotlib.pyplot as plt
 # Plotting
 fig, ax = plt.subplots()
