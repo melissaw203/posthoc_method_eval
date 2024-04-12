@@ -1,0 +1,67 @@
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+import xgboost as xgb
+
+def train_linear_regression(X, y):
+    """
+    Trains a Linear Regression model on the provided features and target.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Coefficients of the linear regression model.
+    """
+    model = LinearRegression()
+    model.fit(X, y)
+    return np.round(model.coef_, 2)
+
+def train_decision_tree(X, y):
+    """
+    Trains a Decision Tree Regressor model on the provided features and target.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Feature importances from the decision tree model.
+    """
+    model = DecisionTreeRegressor()
+    model.fit(X, y)
+    return np.round(model.feature_importances_, 2)
+
+def train_random_forest(X, y):
+    """
+    Trains a Random Forest Regressor model on the provided features and target.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Feature importances from the random forest model.
+    """
+    model = RandomForestRegressor()
+    model.fit(X, y)
+    return np.round(model.feature_importances_, 2)
+
+def train_xgboost(X, y):
+    """
+    Trains an XGBoost Regressor model on the provided features and target.
+    Uses reduced number of estimators to speed up the training process.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Feature importances from the XGBoost model.
+    """
+    model = xgb.XGBRegressor(n_estimators=10, verbosity=0)
+    model.fit(X, y)
+    return np.round(model.feature_importances_, 2)
