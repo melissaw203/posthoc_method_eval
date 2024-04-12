@@ -1,0 +1,20 @@
+from sklearn.linear_model import Lasso
+
+def train_lasso_regression(X, y, alpha=1.0):
+    """
+    Trains a Lasso Regression model on the provided features and target.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+        alpha (float): Regularization strength; must be a positive float. 
+                       Regularization improves the conditioning of the problem 
+                       and reduces the variance of the estimates. Larger values 
+                       specify stronger regularization.
+
+    Returns:
+        ndarray: Coefficients of the Lasso regression model.
+    """
+    model = Lasso(alpha=alpha)
+    model.fit(X, y)
+    return np.round(model.coef_, 2)
