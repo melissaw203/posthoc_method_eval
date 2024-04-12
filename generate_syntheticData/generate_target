@@ -1,0 +1,21 @@
+
+def generate_target(X, d):
+    """
+    Generates target variable based on the degree of complexity.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        d (int): Degree of target expression (1 for linear, 2 for quadratic).
+    
+    Returns:
+        Series: Target variable.
+    """
+    if d == 1:
+        # Linear combination of features
+        beta = np.random.uniform(0, 1, X.shape[1])
+        return X.dot(beta)
+    elif d == 2:
+        # Quadratic combination of randomly selected features
+        beta = np.random.uniform(0, 1)
+        i, j = np.random.choice(X.shape[1], 2, replace=True)
+        return beta * (X.iloc[:, i] * X.iloc[:, j])
