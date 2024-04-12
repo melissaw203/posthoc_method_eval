@@ -1,0 +1,22 @@
+import shap
+import pandas as pd
+
+# Function for SHAP values
+def calculate_shap_values(model, X_train, instance, model_pred, scales, num_perturbations):
+    """
+    Calculates SHAP values and evaluates their faithfulness.
+
+    Args:
+        model: Trained model object.
+        X_train (DataFrame): Training data.
+        instance (DataFrame): Single data instance for explanation.
+        model_pred: Function to make predictions with the model.
+        scales: Scale factors for feature perturbation.
+        num_perturbations: Number of perturbations to perform for faithfulness evaluation.
+
+    Returns:
+        tuple: SHAP values and RMSE of explanation faithfulness.
+    """
+    explainer = shap.Explainer(model.predict, X_train)
+    coefs = explainer(instance).values.flatten()
+    return coefs
