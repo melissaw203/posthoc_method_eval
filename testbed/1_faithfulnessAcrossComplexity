@@ -1,0 +1,36 @@
+def vary_correlation(num_features, marginals, correlations, coefficients, num_observations=100, max=21, sample=4):
+
+  rmse_over_corr = pd.DataFrame(index=correlations, columns = ['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'])
+
+  for rho in correlations:
+    correlation_matrix = generate_correlation_matrix(num_features, rho)
+    X = simulate_higher_order_copula(correlation_matrix=correlation_matrix, marginals=marginals, n=num_observations)
+
+    # (Combine dataframes and) calculate target
+    df = combine_dataframes_with_target(pd.DataFrame(X), coefficients=coefficients)
+    # print(df.head())
+
+    thisRho_rmse = test_sample_instances_rmse(df, max, sample = int(1))
+    # print(thisRho_rmse)
+    thisRho_rmse.drop(index='Model', inplace=True)
+    thisRho_avg_rmse = thisRho_rmse.mean(axis='rows')
+    # print(thisRho_avg_rmse)
+
+    # Save average RMSE for each model for the current `rho`
+    rmse_over_corr.loc[rho] = thisRho_avg_rmse
+
+  return rmse_over_corr
+
+
+
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+from scipy.stats import norm
+
+correlations = np.arange(0, 1.1, 0.1)
+marginals = [norm(loc=0, scale=1),  # Normal distribution with mean=0 and std=1
+             norm(loc=0, scale=1),  # Normal distribution with mean=0 and std=1
+             norm(loc=0, scale=1),  # Normal distribution with mean=0 and std=1
+             norm(loc=0, scale=1)]  # Normal distribution with mean=0 and std=1
+coefficients = [1, 0, 0, 0]
+
+avg_rmse = vary_correlation(4, marginals, correlations, coefficients)
