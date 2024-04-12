@@ -1,0 +1,36 @@
+import re
+
+def extract_feature_name(expression):
+    # Pattern to identify the feature name which is not directly adjacent to digits or operators
+    # Assumes feature names do not contain digits or relational operators
+    pattern = re.compile(r'(?<![\d<>=])\b\w+\b(?![\d<>=])')
+    match = pattern.search(expression)
+    if match:
+        return match.group()
+    return expression  # Fallback: return the entire expression if no pattern is matched
+
+# Function for LIME explanations
+def calculate_lime_values(model, X_train, instance, model_pred, scales, num_perturbations):
+    """
+    Calculates LIME explanations and evaluates their faithfulness.
+
+    Args:
+        model: Trained model object.
+        X_train (DataFrame): Training data.
+        instance (DataFrame): Single data instance for explanation.
+        model_pred: Function to make predictions with the model.
+        scales: Scale factors for feature perturbation.
+        num_perturbations: Number of perturbations to perform for faithfulness evaluation.
+
+    Returns:
+        tuple: LIME feature importance dictionary and RMSE of explanation faithfulness.
+    """
+    lime_explainer = lime.LimeTabularExplainer(X_train.values, feature_names=X_train.columns, class_names=['Target'], mode='regression')
+    lime_exp = lime_explainer.explain_instance(instance.iloc[0].values, model.predict, num_features=len(X_train.columns))
+    feature_importance = dict(lime_exp.as_list())
+
+    for expression, importance in feature_importance.items():
+            feature_name = extract_feature_name(expression)
+            if feature_name in lime_values_df.columns:
+                lime_values_df.at[model_name, feature_name] = importance
+        coefs = lime_values_df.loc[model_name]
