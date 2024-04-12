@@ -17,4 +17,4 @@ def train_lasso_regression(X, y, alpha=1.0):
     """
     model = Lasso(alpha=alpha)
     model.fit(X, y)
-    return np.round(model.coef_, 2)
+    return model.coef_
