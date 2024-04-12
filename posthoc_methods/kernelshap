@@ -1,0 +1,21 @@
+
+# Function for KernelSHAP explanations
+def calculate_kernelshap_values(model, X_train, instance, model_pred, scales, num_perturbations):
+    """
+    Calculates KernelSHAP values and evaluates their faithfulness.
+
+    Args:
+        model: Trained model object.
+        X_train (DataFrame): Training data.
+        instance (DataFrame): Single data instance for explanation.
+        model_pred: Function to make predictions with the model.
+        scales: Scale factors for feature perturbation.
+        num_perturbations: Number of perturbations to perform for faithfulness evaluation.
+
+    Returns:
+        tuple: KernelSHAP values and RMSE of explanation faithfulness.
+    """
+    wrapped_predict = lambda x: model.predict(x)
+    kernel_explainer = shap.KernelExplainer(wrapped_predict, shap.sample(X_train, 100).values)
+    kernelshap_values = kernel_explainer.shap_values(instance.values)[0]
+    return kernelshap_values
