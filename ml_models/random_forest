@@ -1,0 +1,14 @@
+def train_random_forest(X, y):
+    """
+    Trains a Random Forest Regressor model on the provided features and target.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Feature importances from the random forest model.
+    """
+    model = RandomForestRegressor()
+    model.fit(X, y)
+    return model.feature_importances_
