@@ -1,0 +1,17 @@
+def run_experiment(n=1000, m=10, rhos=np.arange(0, 1.1, 0.1), d=1, R=3, I=200):
+    """
+    Conducts the full experimental pipeline.
+    """
+    results = {}
+    for rho in rhos:
+        results[rho] = {'on-manifold': [], 'off-manifold': []}
+        for _ in range(R):
+            X = generate_correlated_data(n, m, rho)
+            y = np.dot(X, np.random.rand(m)) if d == 1 else np.sum(X**2, axis=1)
+            models = train_models(X, y)
+            explanations = generate_explanations(models, X[:I])
+            on_manifold_faithfulness = evaluate_explanation_faithfulness_knn(explanations, X[:I], y[:I])
+            off_manifold_faithfulness = evaluate_explanation_faithfulness(explanations, X[:I], y[:I])
+            results[rho]['on-manifold'].append(on_manifold_faithfulness)
+            results[rho]['off-manifold'].append(off_manifold_faithfulness)
+    return results
