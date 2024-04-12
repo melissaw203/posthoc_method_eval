@@ -1,0 +1,26 @@
+import numpy as np
+
+def evaluate_explanation_faithfulness(model_pred, instance, coefs, scales, num_perturbations):
+    """
+    Evaluate the faithfulness of a single explanation by calculating the RMSE for a single instance.
+
+    :param model_pred: The prediction made by the model for the instance.
+    :param instance: The instance being explained (numpy array).
+    :param coefs: Coefficients from the explanation method for the features.
+    :param scales: Different scales to apply to the noise for perturbations.
+    :param num_perturbations: Number of perturbations to perform.
+    :return: Array of RMSE values corresponding to each scale.
+    """
+    scales_len = len(scales)
+    rmse = np.zeros(scales_len)
+    d = instance.shape[0]
+
+    for j in range(num_perturbations):
+        noise = np.random.normal(loc=0.0, scale=10, size=d)
+        for k, scale in enumerate(scales):
+            instance_pert = instance + scale * noise
+            explanation_pred = np.dot(instance_pert, coefs)
+            rmse[k] += (explanation_pred - model_pred)**2
+
+    rmse = np.sqrt(rmse / num_perturbations)
+    return rmse
