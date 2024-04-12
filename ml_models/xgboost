@@ -1,0 +1,15 @@
+def train_xgboost(X, y):
+    """
+    Trains an XGBoost Regressor model on the provided features and target.
+    Uses reduced number of estimators to speed up the training process.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Feature importances from the XGBoost model.
+    """
+    model = xgb.XGBRegressor(n_estimators=10, verbosity=0)
+    model.fit(X, y)
+    return model.feature_importances_
