@@ -1,0 +1,19 @@
+def create_synthetic_dataset(n=1000, m=10, rho=0.5, eta=0.01, d=1):
+    """
+    Complete pipeline for synthetic dataset generation.
+    
+    Args:
+        n (int): Number of samples.
+        m (int): Number of features.
+        rho (float): Correlation coefficient.
+        eta (float): Noise level.
+        d (int): Degree of target expression.
+    
+    Returns:
+        DataFrame, Series: Feature matrix and target variable.
+    """
+    X_clean = generate_feature_matrix(n, m, rho)
+    X_noisy = add_noise(X_clean, eta)
+    y = generate_target(X_clean, d)  # Using clean features for target generation
+    
+    return X_noisy, y
