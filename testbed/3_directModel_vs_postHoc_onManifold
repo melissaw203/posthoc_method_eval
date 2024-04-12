@@ -1,0 +1,134 @@
+import pandas as pd
+import numpy as np
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, Lasso
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+from lime import lime_tabular
+import shap
+
+def preprocess(df, max_samples = 100):
+  X = df.drop('Target', axis=1)[:max_samples]
+  y = df['Target'][:max_samples]
+
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+  return X_train, X_test, y_train, y_test
+
+# Assuming evaluate_explanation_faithfulness, extract_feature_name, OnManifoldExplainer, IndExplainer
+# and other dependencies are defined elsewhere
+
+def train_and_attribute(df, instance_idx, max_samples=100):
+    X = df.drop('Target', axis=1)[:max_samples]
+    y = df['Target'][:max_samples]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+    instance = X.iloc[instance_idx:instance_idx + 1]
+
+    # Initialize DataFrames for storing results and explanations
+    results_df = pd.DataFrame(index=['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'],
+                              columns=X.columns)
+    shap_values_df = pd.DataFrame(index=['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'],
+                                  columns=X.columns)
+    lime_values_df = pd.DataFrame(0, index=['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'],
+                                  columns=X.columns)
+    kernelshap_values_df = pd.DataFrame(0, index=['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'],
+                                        columns=X.columns)
+    maple_values_df = pd.DataFrame(0, index=['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'],
+                                   columns=X.columns)
+
+    rmse_results = pd.DataFrame(index=['Model','SHAP', 'LIME', 'KernelSHAP', 'MAPLE', 'OnManifold SHAP'],
+                                columns=['Lasso', 'Decision Tree', 'Random Forest', 'XGBoost'])
+
+    # Initialize model information storage
+    model_info = {}
+
+    # Initialize LIME explainer
+    lime_explainer = lime_tabular.LimeTabularExplainer(training_data=np.array(X_train),
+                                                       feature_names=X_train.columns.tolist(),
+                                                       class_names=['Target'],
+                                                       mode='regression')
+
+    for model_name, model in [('Lasso', Lasso(alpha=0.1)),
+                              ('Decision Tree', DecisionTreeRegressor()),
+                              ('Random Forest', RandomForestRegressor()),
+                              ('XGBoost', xgb.XGBRegressor(n_estimators=10, verbosity=0))]:
+
+        model.fit(X_train, y_train)
+        predictions = model.predict(X_test)
+        mse = np.round(mean_squared_error(y_test, predictions),4)
+        r2 = np.round(r2_score(y_test, predictions),4)
+
+        # Calculate model prediction for the instance
+        model_pred = model.predict(instance)[0]
+
+        # Collect model-specific information and performance metrics
+        model_info[model_name] = {'MSE': mse, 'R^2': r2}
+
+        if model_name == 'Decision Tree':
+            model_info[model_name].update({'Depth of Tree': model.get_depth(), 'Number of Leaves': model.get_n_leaves()})
+        elif model_name == 'Random Forest':
+            depths = [estimator.get_depth() for estimator in model.estimators_]
+            leaves = [estimator.get_n_leaves() for estimator in model.estimators_]
+            model_info[model_name].update({'Average Depth of Trees': sum(depths) / len(depths),
+                                           'Average Number of Leaves': sum(leaves) / len(leaves)})
+        elif model_name == 'XGBoost':
+            model_info[model_name].update({'Number of Boosting Rounds': model.get_booster().num_boosted_rounds()})
+
+        if model_name == 'Lasso':
+            results_df.loc[model_name] = np.round(model.coef_, 2)
+        else:
+            results_df.loc[model_name] = np.round(model.feature_importances_, 2)
+
+        coefs = results_df.loc[model_name]
+        model_rmse = evaluate_explanation_faithfulness_knn(model_pred, instance.iloc[0], coefs, scales, num_perturbations)
+        rmse_results.at['Model',model_name] = model_rmse.mean()
+
+        # SHAP values
+        explainer = shap.Explainer(model.predict, X_train)
+        coefs = explainer(instance).values.flatten()
+        shap_values_df.loc[model_name] = coefs
+        shap_rmse = evaluate_explanation_faithfulness_knn(model_pred, instance.iloc[0], coefs, scales, num_perturbations)
+        rmse_results.at['SHAP', model_name] = shap_rmse.mean()
+
+        # LIME explanations
+        lime_exp = lime_explainer.explain_instance(instance.iloc[0].values, model.predict, num_features=len(X.columns))
+        feature_importance = dict(lime_exp.as_list())
+        for expression, importance in feature_importance.items():
+            feature_name = extract_feature_name(expression)
+            if feature_name in lime_values_df.columns:
+                lime_values_df.at[model_name, feature_name] = importance
+        coefs = lime_values_df.loc[model_name]
+        lime_rmse = evaluate_explanation_faithfulness_knn(model_pred, instance.iloc[0], coefs, scales, num_perturbations)
+        rmse_results.at['LIME', model_name] = lime_rmse.mean()
+
+        # KernelSHAP explanations
+        wrapped_predict = lambda x: model.predict(x)
+        kernel_explainer = shap.KernelExplainer(wrapped_predict, shap.sample(X_train, 100).values)
+        kernelshap_values = kernel_explainer.shap_values(instance.values)[0]
+        kernelshap_values_df.loc[model_name] = kernelshap_values
+        kernelshap_rmse = evaluate_explanation_faithfulness_knn(model_pred, instance.iloc[0], kernelshap_values, scales, num_perturbations)
+        rmse_results.at['KernelSHAP', model_name] = kernelshap_rmse.mean()
+
+        # MAPLE explanation
+        maple_explainer = shap.explainers.other.Maple(lambda x: model.predict(x), X_train)
+        maple_values = maple_explainer.attributions(instance.values).flatten()
+        for i, feature in enumerate(X.columns):
+            maple_values_df.at[model_name, feature] = maple_values[i]
+        coefs = maple_values_df.loc[model_name]
+        maple_rmse = evaluate_explanation_faithfulness_knn(model_pred, instance.iloc[0], coefs, scales, num_perturbations)
+        rmse_results.at['MAPLE', model_name] = maple_rmse.mean()
+
+        # On Manifold SHAP
+        on_manifold_explainer = OnManifoldExplainer(model.predict, pd.DataFrame(X_train))
+        on_manifold_shap_values = on_manifold_explainer.shap_values(instance).values.flatten()
+        on_manifold_rmse = evaluate_explanation_faithfulness_knn(model_pred, instance.iloc[0], on_manifold_shap_values, scales, num_perturbations)
+        rmse_results.at['OnManifold SHAP', model_name] = on_manifold_rmse.mean()
+
+    rmse_diff = rmse_results.subtract(rmse_results.loc['Model'], axis='columns')
+
+    return results_df, shap_values_df, lime_values_df, kernelshap_values_df, maple_values_df, rmse_results, rmse_diff
+
