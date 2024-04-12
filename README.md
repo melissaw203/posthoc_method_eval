@@ -8,9 +8,12 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
-<h3 align="center">From Black Box to Glass Box: The Impact of Data Complexity on Machine Learning Explainability</h3>
+<h1 align="center">From Black Box to Glass Box: The Impact of Data Complexity on Machine Learning Explainability</h1>
+<h2 align="center">A Senior Thesis for the ORFE Department at Princeton University</h2>
+<h2 align="center">Melissa Woo, Princeton 2024</h2>
+<h2 align="center">Advised by: Dr. Margaret Holen</h2>
 
-  <p align="center">
+  <p align="left">
     Abstract: Advancements in machine learning (ML) have sparked innovation across the finance sector, introducing the use of sophisticated models in critical areas like credit scoring and risk assessment. While powerful, these models often operate as ``black boxes," with opaque decision-making that raises significant concerns about fairness and accountability. 
 This has spurred much research in ML explainability and particularly in post-hoc feature attribution methods, which aim to clarify model decisions by assessing the influence of each input feature on the outcome. With the rapid proliferation of such methods, performance evaluation across different feature attribution methods is key, but requires detailed, context-specific insights, making it difficult to apply conclusions broadly across different use cases. In our research, we develop an evaluation framework to assess explanation faithfulness across varying complexities of both data and ML models. Using synthetically generated data, we show the varying impact of feature correlation, target expression complexity, and on/off-manifold scenarios on the performance of popular post-hoc feature attribution methods. Despite degrading explanation faithfulness with increasing data complexity, post-hoc feature attribution methods consistently outperform direct model explanations, enhancing ML models of all complexities, including simpler ones often perceived as self-contained. Analyzing each method's performance over diverse contexts reveals distinct strengths and weaknesses. While LIME and MAPLE effectively extrapolate explanations for data from unseen distributions, they encounter difficulties with highly correlated, nonlinear data. Conversely, On-Manifold SHAP, followed by SHAP and KernelSHAP, excel at explaining data that mirrors the training distribution, even for high complexity. These findings offer actionable insights for both practitioners and researchers in method selection and development alike.
     <br />
