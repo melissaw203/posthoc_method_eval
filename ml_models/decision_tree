@@ -1,0 +1,15 @@
+
+def train_decision_tree(X, y):
+    """
+    Trains a Decision Tree Regressor model on the provided features and target.
+    
+    Args:
+        X (DataFrame): Feature matrix.
+        y (Series): Target variable.
+
+    Returns:
+        ndarray: Feature importances from the decision tree model.
+    """
+    model = DecisionTreeRegressor()
+    model.fit(X, y)
+    return model.feature_importances_
