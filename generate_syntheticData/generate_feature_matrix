@@ -1,0 +1,25 @@
+def generate_feature_matrix(n, m, rho):
+    """
+    Generates a feature matrix with Gaussian copula for specified correlation.
+    
+    Args:
+        n (int): Number of data instances.
+        m (int): Number of features.
+        rho (float): Correlation coefficient between each pair of features.
+        
+    Returns:
+        DataFrame: Feature matrix with correlation structure.
+    """
+    # Create a correlation matrix
+    correlation_matrix = np.full((m, m), rho)
+    np.fill_diagonal(correlation_matrix, 1)
+
+    # Create Gaussian copula
+    copula = GaussianMultivariate()
+    copula.covariance = correlation_matrix
+
+    # Sample from Gaussian copula
+    samples = copula.sample(n)
+    samples.columns = [f'Feature_{i+1}' for i in range(m)]
+    
+    return samples
