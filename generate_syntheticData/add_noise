@@ -1,0 +1,14 @@
+
+def add_noise(X, eta):
+    """
+    Adds Gaussian noise to each feature in the dataset.
+    
+    Args:
+        X (DataFrame): Original feature matrix.
+        eta (float): Noise level parameter.
+    
+    Returns:
+        DataFrame: Noisy feature matrix.
+    """
+    noise = np.random.normal(0, eta, X.shape)
+    return X + noise
