@@ -19,13 +19,7 @@ This has spurred much research in ML explainability and particularly in post-hoc
     <br />
     <br />
     <a href="[https://github.com/github_username/repo_name](https://github.com/melissaw203/posthoc_method_eval/)"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+   
   </p>
 </div>
 
@@ -34,9 +28,9 @@ This has spurred much research in ML explainability and particularly in post-hoc
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [My thesis advisor Dr. Margaret Holen for her invaluable help and support in this endeavor.]()
-* []()
-* []()
+* My thesis advisor Dr. Margaret Holen for her invaluable help and guidance in this endeavor.
+* My research group leader Dan Rigobon for all his feedback and engagement with my work throughout the process.
+* My friends and family for their endless support.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
